@@ -12,9 +12,11 @@ from ..constants import WEBDRIVER_WAIT_TIME
 
 class FipsParser:
     def __init__(self):
+        user_agent = UserAgent()
+
         options = ChromeOptions()
         options.add_argument('--enable-aggressive-domstorage-flushing')
-        options.add_argument(f'user-agent={UserAgent.random}')
+        options.add_argument(f'--user-agent={user_agent.random}')
         self.__driver = Chrome(options=options)
         self.__wait = WebDriverWait(self.__driver, WEBDRIVER_WAIT_TIME)
 
