@@ -15,12 +15,12 @@ def main():
     ]
 
     for url, text in url_text_map.items():
-        print(f'Ссылка на патент: {url}\nНайденные алгоритмы:')
+        print(f'Ссылка на патент: {url}\nНайденные фразы:')
         phrases_found = text_parser.search_phrases_in_text(phrases, text)
         if phrases_found:
             pprint(phrases_found)
         else:
-            print('Нет найденных алгоритмов')
+            print('Нет найденных фраз')
         print()
 
 

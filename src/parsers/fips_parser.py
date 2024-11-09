@@ -14,28 +14,41 @@ class FipsParser:
     def __init__(self):
         user_agent = UserAgent()
         options = ChromeOptions()
-        options.add_argument('--enable-aggressive-domstorage-flushing')
-        options.add_argument(f'--user-agent={user_agent.random}')
+        options.add_argument("--enable-aggressive-domstorage-flushing")
+        options.add_argument(f"--user-agent={user_agent.random}")
+        options.add_argument("--headless=new")
         self.__driver = Chrome(options=options)
         self.__wait = WebDriverWait(self.__driver, WEBDRIVER_WAIT_TIME)
 
     def parse_by_query(self, query):
-        self.__driver.get('https://www.fips.ru/iiss/db.xhtml')
+        self.__driver.get("https://www.fips.ru/iiss/db.xhtml")
 
-        self.__click_on_element(By.XPATH, '//div[contains(text(), "Патентные документы РФ")]')
+        self.__click_on_element(
+            By.XPATH, '//div[contains(text(), "Патентные документы РФ")]'
+        )
         self.__click_on_element(By.XPATH, '//input[@value="выделить все"]')
         self.__click_on_element(By.XPATH, '//input[@value="перейти к поиску"]')
 
-        search_input = self.__driver.find_element(By.XPATH, '//div[@class="input"]//textarea')
+        search_input = self.__driver.find_element(
+            By.XPATH, '//div[@class="input"]//textarea'
+        )
         search_input.send_keys(query)
         self.__click_on_element(By.XPATH, '//input[@value="Поиск"]')
 
-        urls = set([url.get_attribute('href') for url in self.__driver.find_elements(By.XPATH, '//a[@class="tr"]')])
+        patent_numbers = set(
+            [
+                url.text
+                for url in self.__driver.find_elements(
+                    By.XPATH, '//div[@class="td"][2]'
+                )
+            ]
+        )
         url_text_map = {}
-        for url in urls:
-            self.__driver.get(url)
-            if self.__driver.current_url == url:
-                url_text_map[url] = self.__driver.execute_script('return document.body.innerText;')
+
+        for patent_number in patent_numbers:
+            url_text_map[
+                f"https://new.fips.ru/registers-doc-view/fips_servlet?DB=RUPAT&DocNumber={patent_number}&TypeFile=html"
+            ] = self.__driver.execute_script("return document.body.innerText;")
 
         return url_text_map
 
